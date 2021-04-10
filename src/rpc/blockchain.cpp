@@ -172,6 +172,19 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* tip, const CBlockIn
         {
             UniValue objTx(UniValue::VOBJ);
             TxToUniv(*tx, uint256(), objTx, true, RPCSerializationFlags());
+
+            vaulttxntype txType = GetVaultTxTypeNonContextual(*tx);
+            auto getTxTypeName = [] (const vaulttxntype txType) -> std::string {
+                switch (txType) {
+                    case TX_ALERT: return "TX_ALERT";
+                    case TX_INSTANT: return "TX_INSTANT";
+                    case TX_RECOVERY: return "TX_RECOVERY";
+                    case TX_INVALID: return "TX_INVALID";
+                    default: return "TX_NONVAULT";
+                }
+            };
+            objTx.pushKV("type", getTxTypeName(txType));
+
             txs.push_back(objTx);
         }
         else
